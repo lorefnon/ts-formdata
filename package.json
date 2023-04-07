@@ -1,11 +1,11 @@
 {
-    "name": "typed-formdata",
+    "name": "ts-formdata",
     "version": "0.0.7",
     "description": "Add types to your FormData!",
     "author": "David Plugge",
     "repository": {
         "type": "git",
-        "url": "https://github.com/david-plugge/typed-formdata"
+        "url": "https://github.com/lorefnon/ts-formdata"
     },
     "license": "MIT",
     "keywords": [

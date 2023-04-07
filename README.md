@@ -1,8 +1,8 @@
-# typed-formdata
+# ts-formdata
 
-[![npm](https://img.shields.io/npm/v/typed-formdata)](https://www.npmjs.com/package/typed-formdata)
-![GitHub top language](https://img.shields.io/github/languages/top/david-plugge/typed-formdata)
-![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/david-plugge/typed-formdata/main.yaml?branch=main)
+[![npm](https://img.shields.io/npm/v/ts-formdata)](https://www.npmjs.com/package/ts-formdata)
+![GitHub top language](https://img.shields.io/github/languages/top/lorefnon/ts-formdata)
+![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/lorefnon/ts-formdata/main.yaml?branch=main)
 
 Have you ever tried setting up forms for modern frameworks that support nested objects and arrays?
 
@@ -14,18 +14,18 @@ This package helps you with that.
 
 ```bash
 # npm
-npm i typed-formdata
+npm its-formdata
 
 # pnpm
-pnpm i typed-formdata
+pnpm its-formdata
 
 # yarn
-yarn add typed-formdata
+yarn addts-formdata
 ```
 
 ## Examples
 
--   [SvelteKit](https://github.com/david-plugge/typed-formdata/tree/main/examples/sveltekit)
+-   [SvelteKit](https://github.com/lorefnon/ts-formdata/tree/main/examples/sveltekit)
 
 ## Usage
 
@@ -55,7 +55,7 @@ Use the `fields` helper to create your input names:
 
 ```ts
 <script lang="ts">
-    import { fields } from 'typed-formdata';
+    import { fields } from 'ts-formdata';
 
     const f = fields<MyForm>();
 </script>
@@ -153,7 +153,7 @@ fields<MyForm>().favouriteFrameworks(2).satisfaction;
 Browsers send empty inputs as an empty string or file. `extractFormData` omits the values.
 
 ```ts
-import { extractFormData } from 'typed-formdata';
+import { extractFormData } from 'ts-formdata';
 
 export async function handlePost(request: Request) {
     const formData = await request.formData();
@@ -216,4 +216,4 @@ export async function handlePost(request: Request) {
 
 ## License
 
-[MIT](https://github.com/david-plugge/typed-formdata/blob/main/LICENSE)
+[MIT](https://github.com/lorefnon/ts-formdata/blob/main/LICENSE)

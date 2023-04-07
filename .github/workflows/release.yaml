@@ -12,7 +12,7 @@ permissions: {}
 jobs:
     release:
         # prevents this action from running on forks
-        if: github.repository == 'david-plugge/typed-formdata'
+        if: github.repository == 'lorefnon/ts-formdata'
         permissions:
             contents: write # to create release (changesets/action)
             pull-requests: write # to create pull request (changesets/action)
@@ -42,5 +42,5 @@ jobs:
                   title: 'chore: update version'
                   publish: pnpm ci:release
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

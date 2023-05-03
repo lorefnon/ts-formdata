@@ -42,4 +42,4 @@ test('fields with codec', () => {
     expect(asNum(f.arrayNested(2).id), 'nested array').toBe(
         'arrayNested[2].id:number',
     );
-})
+});

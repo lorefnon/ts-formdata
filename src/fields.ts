@@ -12,10 +12,10 @@ const fieldTypeBrand: unique symbol = Symbol();
 
 export interface FieldName<T> {
     [Symbol.toPrimitive]: () => string;
-    [fieldTypeBrand]: T
+    [fieldTypeBrand]: T;
     toString(): string;
     valueOf(): string;
-};
+}
 
 export type Field<T> = {
     [K in keyof T]: T[K] extends unknown[]

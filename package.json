@@ -1,6 +1,6 @@
 {
     "name": "ts-formdata",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "Add types to your FormData!",
     "contributors": [
         "Lorefnon <lorefnon@tutanota.com> (https://lorefnon.me)",

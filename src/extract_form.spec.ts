@@ -44,5 +44,4 @@ test('extractFormData with codecs', () => {
     expect(data.name).toBe('name');
     expect(data.age).toBe(90);
     expect(data.active).toBe(true);
-
-})
+});

@@ -50,8 +50,8 @@ type UserPayload = {
 Use the `fields` helper to create your input names:
 
 ```ts
-import React from "react";
-import { fields, asStr, asNum } from "ts-formdata";
+import React from 'react';
+import { fields, asStr, asNum } from 'ts-formdata';
 
 const f = fields<MyForm>();
 
@@ -59,15 +59,17 @@ const f = fields<MyForm>();
 // is framework agnostic
 const UserPayloadForm = () => {
     return (
-        <form onSubmit={e => {
-            const formData = new FormData(e.currentTarget);
-            const {
-                data, // files and fields
-                fields, // fields only
-                files, // files only
-            } = extractFormData<MyForm>(formData);
-            console.log('data: ', data);
-        }}>
+        <form
+            onSubmit={(e) => {
+                const formData = new FormData(e.currentTarget);
+                const {
+                    data, // files and fields
+                    fields, // fields only
+                    files, // files only
+                } = extractFormData<MyForm>(formData);
+                console.log('data: ', data);
+            }}
+        >
             <h2>Settings</h2>
 
             <label>
@@ -87,14 +89,19 @@ const UserPayloadForm = () => {
                 </select>
             </label>
 
-
             <h2>3 favourite Frameworks</h2>
 
-            <input type="text" name={asStr(f.favouriteFrameworks[0].name)}/>
-            <input type="number" name={asNum(f.favouriteFrameworks[0].satisfaction)} />
+            <input type="text" name={asStr(f.favouriteFrameworks[0].name)} />
+            <input
+                type="number"
+                name={asNum(f.favouriteFrameworks[0].satisfaction)}
+            />
 
-            <input type="text" name={asStr(f.favouriteFrameworks[1].name)}/>
-            <input type="number" name={asNum(f.favouriteFrameworks[1].satisfaction)}/>
+            <input type="text" name={asStr(f.favouriteFrameworks[1].name)} />
+            <input
+                type="number"
+                name={asNum(f.favouriteFrameworks[1].satisfaction)}
+            />
 
             <h2>User</h2>
 
@@ -103,22 +110,22 @@ const UserPayloadForm = () => {
             <input type="file" name={asStr(f.profile.image)} />
         </form>
     );
-}
+};
 ```
 
 What is happening under the hood is:
 
-- `fields()` returns a proxy that will create a string
-    - So: `f.user.lastname.toString()` will be a string `"user.lastname"`
-- asStr, asNum etc. are encoders that append type information to this string
-    - So: `asStr(f.user.lastname)` resolves to a string `"user.lastname:string"`
-- We use this string as a name of the field.
-- Our `extractFormData` function is aware of this path syntax and type suffix and is able to derive the nested structure with appropriately coerced values from the key-value pairs we get in the FormData object.
+-   `fields()` returns a proxy that will create a string
+    -   So: `f.user.lastname.toString()` will be a string `"user.lastname"`
+-   asStr, asNum etc. are encoders that append type information to this string
+    -   So: `asStr(f.user.lastname)` resolves to a string `"user.lastname:string"`
+-   We use this string as a name of the field.
+-   Our `extractFormData` function is aware of this path syntax and type suffix and is able to derive the nested structure with appropriately coerced values from the key-value pairs we get in the FormData object.
 
 **Type safety:**
 
-- Attempting to construct paths that don't match the keys in payload (eg. `f.setting.mode`) will result in a type error.
-- Attempting to use a type encoder with field of different type (eg. `asNum(f.user.firstname)`) is also a type error.
+-   Attempting to construct paths that don't match the keys in payload (eg. `f.setting.mode`) will result in a type error.
+-   Attempting to use a type encoder with field of different type (eg. `asNum(f.user.firstname)`) is also a type error.
 
 #### Nested paths
 
@@ -232,7 +239,7 @@ export async function handlePost(request: Request) {
 
 If the provided converters asStr, asNum etc. are not adequate for you, you can provide custom codecs to the library which will be used for encoding of names and extraction of values.
 
-For example if you want boolean values to be represented as 1/0 values, you can implement a codec as follows: 
+For example if you want boolean values to be represented as 1/0 values, you can implement a codec as follows:
 
 ```
 import { BaseCodec } from "ts-formdata";
@@ -249,7 +256,7 @@ export class ShortBoolCodec extends BaseCodec<boolean> {
 const shortBool = new ShortBoolCodec();
 ```
 
-Now in your form: 
+Now in your form:
 
 ```
 <input type="text" pattern="(1|0)" name={shortBool.encode(f.mood.isHappy)} />
@@ -263,10 +270,10 @@ extractFormData(new FormData(e.currentTarget), [shortBool])
 
 ### Multistep wizards
 
-You can merge data from multiple forms by providing an accumulator to extractFormData. 
+You can merge data from multiple forms by providing an accumulator to extractFormData.
 
 ```ts
-const extracted: Partial<Payload> = {}
+const extracted: Partial<Payload> = {};
 extractFormData(formData, [], extracted);
 // Later:
 extractFormData(formData, [], extracted);

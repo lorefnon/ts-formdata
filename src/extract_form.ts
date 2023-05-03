@@ -40,14 +40,14 @@ type FormDataExtract<T> = {
 export function extractFormData<T = any>(
     formData: FormData,
     codecs?: Codec<any>[],
-    prevData?: FormDataExtract<T>
+    prevData?: FormDataExtract<T>,
 ): FormDataExtract<T> {
     const codecsMapping = codecs
         ? {
-            ...defaultCodecsBySuffix,
-            ...mapCodecsBySuffix(codecs)
-        }
-        : defaultCodecsBySuffix
+              ...defaultCodecsBySuffix,
+              ...mapCodecsBySuffix(codecs),
+          }
+        : defaultCodecsBySuffix;
 
     const data = prevData?.data ?? {};
     const fields = prevData?.fields ?? {};
@@ -56,8 +56,8 @@ export function extractFormData<T = any>(
     for (const [entryKey, value] of formData.entries()) {
         const isFile = value instanceof Blob;
         const isField = typeof value === 'string';
-        let val: any
-        const [key, codecSuffix] = entryKey.split(':')
+        let val: any;
+        const [key, codecSuffix] = entryKey.split(':');
 
         if (
             // empty file
@@ -67,13 +67,13 @@ export function extractFormData<T = any>(
         ) {
             val = undefined;
         } else if (codecSuffix) {
-            const codec = codecsMapping[codecSuffix] as Codec<any>
+            const codec = codecsMapping[codecSuffix] as Codec<any>;
             if (!codec) {
-                throw new Error(`No codec found for suffix: ${codecSuffix}`)
+                throw new Error(`No codec found for suffix: ${codecSuffix}`);
             }
-            val = codec.decodeValue(value)
+            val = codec.decodeValue(value);
         } else {
-            val = value
+            val = value;
         }
 
         set(data, key, val);

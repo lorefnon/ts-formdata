@@ -29,7 +29,8 @@
         "format": "prettier --write .",
         "test": "vitest",
         "ci:version": "changeset version",
-        "ci:release": "changeset publish"
+        "ci:release": "changeset publish",
+        "prepublishOnly": "pnpm run format && pnpm run lint && pnpm run build"
     },
     "devDependencies": {
         "@changesets/cli": "^2.26.0",

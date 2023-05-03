@@ -31,7 +31,7 @@ type GetFormFiles<T> = T extends Record<string, unknown>
     ? Array<GetFormFiles<K>>
     : string;
 
-type ExtractFormData<T> = {
+type FormDataExtract<T> = {
     data: T extends Record<string, unknown> ? GetFormData<T> : any;
     fields: T extends Record<string, unknown> ? GetFormFields<T> : any;
     files: T extends Record<string, unknown> ? GetFormFiles<T> : any;
@@ -39,8 +39,9 @@ type ExtractFormData<T> = {
 
 export function extractFormData<T = any>(
     formData: FormData,
-    codecs?: Codec<any>[]
-): ExtractFormData<T> {
+    codecs?: Codec<any>[],
+    prevData?: FormDataExtract<T>
+): FormDataExtract<T> {
     const codecsMapping = codecs
         ? {
             ...defaultCodecsBySuffix,
@@ -48,9 +49,9 @@ export function extractFormData<T = any>(
         }
         : defaultCodecsBySuffix
 
-    const data: any = {};
-    const fields: any = {};
-    const files: any = {};
+    const data = prevData?.data ?? {};
+    const fields = prevData?.fields ?? {};
+    const files = prevData?.files ?? {};
 
     for (const [entryKey, value] of formData.entries()) {
         const isFile = value instanceof Blob;
@@ -87,7 +88,7 @@ export function extractFormData<T = any>(
         data,
         fields,
         files,
-    };
+    } as FormDataExtract<T>;
 }
 
 function fillHoles(obj: any) {

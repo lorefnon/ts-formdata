@@ -4,35 +4,31 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/lorefnon/ts-formdata)
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/lorefnon/ts-formdata/main.yaml?branch=main)
 
-Have you ever tried setting up forms for modern frameworks that support nested objects and arrays?
+[FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData) is a convenient way to extract data from forms - however it is not so convenient to use when you want the form payload to be something more complex than key-value pairs. In addition, the values are always strings- and you are responsible to converting them to numbers, dates, booleans etc.
 
-It´s not fun.
+Writing these converters are boring and error-prone - this library helps you by providing you a simple approach to encode nesting and type information in the field names so that they can be easily parsed into nested structures in a type-safe manner.
 
-This package helps you with that.
+ts-formdata is framework agnostic - feel free to use it alongside Vanilla JS, React, Svelte etc. on client side or with [formdata-node](https://www.npmjs.com/package/formdata-node) on the server side.
 
 ## Installation
 
 ```bash
 # npm
-npm its-formdata
+npm i ts-formdata
 
 # pnpm
-pnpm its-formdata
 
+pnpm i ts-formdata
 # yarn
-yarn addts-formdata
+yarn add ts-formdata
 ```
-
-## Examples
-
--   [SvelteKit](https://github.com/lorefnon/ts-formdata/tree/main/examples/sveltekit)
 
 ## Usage
 
-First up, define your form data:
+Let's say our form data looks like this:
 
 ```ts
-type MyForm = {
+type UserPayload = {
     settings: {
         mode: 'auto' | 'light' | 'dark';
         theme: 'red' | 'green' | 'blue';
@@ -41,7 +37,7 @@ type MyForm = {
         name: string;
         satisfaction: number;
     }>;
-    user: {
+    profile: {
         firstname?: string;
         lastname?: string;
         image?: Blob;
@@ -54,51 +50,77 @@ type MyForm = {
 Use the `fields` helper to create your input names:
 
 ```ts
-<script lang="ts">
-    import { fields } from 'ts-formdata';
+import React from "react";
+import { fields, asStr, asNum } from "ts-formdata";
 
-    const f = fields<MyForm>();
-</script>
+const f = fields<MyForm>();
 
-<form>
-    <h2>Settings</h2>
+// We are using React for illustration here, but ts-formdata
+// is framework agnostic
+const UserPayloadForm = () => {
+    return (
+        <form onSubmit={e => {
+            const formData = new FormData(e.currentTarget);
+            const {
+                data, // files and fields
+                fields, // fields only
+                files, // files only
+            } = extractFormData<MyForm>(formData);
+            console.log('data: ', data);
+        }}>
+            <h2>Settings</h2>
 
-    <label>
-        <span>Mode</span>
-        <select name="{f.settings.mode}">
-            <options>auto</options>
-            <options>light</options>
-            <options>dark</options>
-        </select>
-    </label>
-    <label>
-        <span>Theme</span>
-        <select name="{f.settings.theme}">
-            <options>red</options>
-            <options>green</options>
-            <options>blue</options>
-        </select>
-    </label>
+            <label>
+                <span>Mode</span>
+                <select name={asStr(f.settings.mode)}>
+                    <options>auto</options>
+                    <options>light</options>
+                    <options>dark</options>
+                </select>
+            </label>
+            <label>
+                <span>Theme</span>
+                <select name={asStr(f.settings.theme)}>
+                    <options>red</options>
+                    <options>green</options>
+                    <options>blue</options>
+                </select>
+            </label>
 
 
-    <h2>3 favourite Frameworks</h2>
+            <h2>3 favourite Frameworks</h2>
 
-    <input type="text" name="{f.favouriteFrameworks[0].name}"/>
-    <input type="number" name="{f.favouriteFrameworks[0].satisfaction}"/>
+            <input type="text" name={asStr(f.favouriteFrameworks[0].name)}/>
+            <input type="number" name={asNum(f.favouriteFrameworks[0].satisfaction)} />
 
-    <input type="text" name="{f.favouriteFrameworks[1].name}"/>
-    <input type="number" name="{f.favouriteFrameworks[1].satisfaction}"/>
+            <input type="text" name={asStr(f.favouriteFrameworks[1].name)}/>
+            <input type="number" name={asNum(f.favouriteFrameworks[1].satisfaction)}/>
 
-    <h2>User</h2>
+            <h2>User</h2>
 
-    <input type="text" name="{f.user.firstname}"/>
-    <input type="text" name="{f.user.lastname}"/>
-</form>
+            <input type="text" name={asStr(f.profile.firstname)} />
+            <input type="text" name={asStr(f.profile.lastname)} />
+            <input type="file" name={asStr(f.profile.image)} />
+        </form>
+    );
+}
 ```
 
-`fields()` returns a proxy that will create a string.
+What is happening under the hood is:
 
-Some examples:
+- `fields()` returns a proxy that will create a string
+    - So: `f.user.lastname.toString()` will be a string `"user.lastname"`
+- asStr, asNum etc. are encoders that append type information to this string
+    - So: `asStr(f.user.lastname)` resolves to a string `"user.lastname:string"`
+- We use this string as a name of the field.
+- Our `extractFormData` function is aware of this path syntax and type suffix and is able to derive the nested structure with appropriately coerced values from the key-value pairs we get in the FormData object.
+
+**Type safety:**
+
+- Attempting to construct paths that don't match the keys in payload (eg. `f.setting.mode`) will result in a type error.
+- Attempting to use a type encoder with field of different type (eg. `asNum(f.user.firstname)`) is also a type error.
+
+#### Nested paths
 
 For nested objects simply chain the keys:
 
@@ -203,16 +225,66 @@ export async function handlePost(request: Request) {
             image?: Blob;
         };
     };
-
-    /**
-     * You can validate the data using your library of choice
-     *
-     * https://zod.dev/
-     * https://github.com/jquense/yup
-     * https://github.com/ianstormtaylor/superstruct
-     */
 }
 ```
+
+### Custom Codecs
+
+If the provided converters asStr, asNum etc. are not adequate for you, you can provide custom codecs to the library which will be used for encoding of names and extraction of values.
+
+For example if you want boolean values to be represented as 1/0 values, you can implement a codec as follows: 
+
+```
+import { BaseCodec } from "ts-formdata";
+
+export class ShortBoolCodec extends BaseCodec<boolean> {
+    constructor() {
+        super('sbool') // <-- Type suffix used in name
+    }
+    decodeValue(value: FormDataEntryValue) {
+        return value === '1';
+    }
+}
+
+const shortBool = new ShortBoolCodec();
+```
+
+Now in your form: 
+
+```
+<input type="text" pattern="(1|0)" name={shortBool.encode(f.mood.isHappy)} />
+```
+
+While extracting you need to pass this codec to `extractFormData`:
+
+```
+extractFormData(new FormData(e.currentTarget), [shortBool])
+```
+
+### Multistep wizards
+
+You can merge data from multiple forms by providing an accumulator to extractFormData. 
+
+```ts
+const extracted: Partial<Payload> = {}
+extractFormData(formData, [], extracted);
+// Later:
+extractFormData(formData, [], extracted);
+```
+
+`extracted` will continue to accumulate the extracted fields in each `extractFormData` invocation.
+
+This is convenient for example, in wizards where each step needs to be separately validated on step submission but data is saved to server only after the final step.
+
+## Caveats
+
+### Missing fields
+
+If a certain field is missing in the rendered form, it will not be present in the form data. However we are not able to validate this at compile time.
+
+This is not a big problem in practice because these errors are easily caught during preliminary testing. However, if you do want to safeguard against partial data you will need to use a validation library like zod to validate the extracted data.
+
+You also need to take care to not use conditional rendering for form fields, as only the fields which are currently present in DOM will be extracted. So it is a better practice to structure dynamic forms such that any fields that are hidden from view are hidden through css rather than removed from DOM.
 
 ## License
 

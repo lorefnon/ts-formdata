@@ -1,8 +1,11 @@
 {
     "name": "ts-formdata",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "Add types to your FormData!",
-    "author": "David Plugge",
+    "contributors": [
+        "Lorefnon <lorefnon@tutanota.com> (https://lorefnon.me)",
+        "David Plugge"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/lorefnon/ts-formdata"
